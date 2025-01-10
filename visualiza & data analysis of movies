@@ -1,0 +1,194 @@
+2024-11-22
+library(ggplot2)
+library(dplyr)
+## 
+## Attaching package: 'dplyr'
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+library(tidyr)
+movies=read.csv("C:/Users/NoteBook/Desktop/dortmund/MoviesOnStreamingPlatforms.csv")
+head(movies)
+##   X ID                                    Title Year Age Rotten.Tomatoes
+## 1 0  1                             The Irishman 2019 18+          98/100
+## 2 1  2                                   Dangal 2016  7+          97/100
+## 3 2  3 David Attenborough: A Life on Our Planet 2020  7+          95/100
+## 4 3  4        Lagaan: Once Upon a Time in India 2001  7+          94/100
+## 5 4  5                                     Roma 2018 18+          94/100
+## 6 5  6        To All the Boys I've Loved Before 2018 13+          94/100
+##   Netflix Hulu Prime.Video Disney. Type
+## 1       1    0           0       0    0
+## 2       1    0           0       0    0
+## 3       1    0           0       0    0
+## 4       1    0           0       0    0
+## 5       1    0           0       0    0
+## 6       1    0           0       0    0
+str(movies)
+## 'data.frame':    9515 obs. of  11 variables:
+##  $ X              : int  0 1 2 3 4 5 6 7 8 9 ...
+##  $ ID             : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ Title          : chr  "The Irishman" "Dangal" "David Attenborough: A Life on Our Planet" "Lagaan: Once Upon a Time in India" ...
+##  $ Year           : int  2019 2016 2020 2001 2018 2018 2020 2017 2018 2020 ...
+##  $ Age            : chr  "18+" "7+" "7+" "7+" ...
+##  $ Rotten.Tomatoes: chr  "98/100" "97/100" "95/100" "94/100" ...
+##  $ Netflix        : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ Hulu           : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ Prime.Video    : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ Disney.        : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ Type           : int  0 0 0 0 0 0 0 0 0 0 ...
+dim(movies)
+## [1] 9515   11
+summary(movies)
+##        X              ID          Title                Year     
+##  Min.   :   0   Min.   :   1   Length:9515        Min.   :1914  
+##  1st Qu.:2378   1st Qu.:2380   Class :character   1st Qu.:2006  
+##  Median :4757   Median :4758   Mode  :character   Median :2015  
+##  Mean   :4757   Mean   :4758                      Mean   :2007  
+##  3rd Qu.:7136   3rd Qu.:7136                      3rd Qu.:2018  
+##  Max.   :9514   Max.   :9515                      Max.   :2021  
+##      Age            Rotten.Tomatoes       Netflix            Hulu     
+##  Length:9515        Length:9515        Min.   :0.0000   Min.   :0.00  
+##  Class :character   Class :character   1st Qu.:0.0000   1st Qu.:0.00  
+##  Mode  :character   Mode  :character   Median :0.0000   Median :0.00  
+##                                        Mean   :0.3883   Mean   :0.11  
+##                                        3rd Qu.:1.0000   3rd Qu.:0.00  
+##                                        Max.   :1.0000   Max.   :1.00  
+##   Prime.Video        Disney.            Type  
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0  
+##  Median :0.0000   Median :0.0000   Median :0  
+##  Mean   :0.4323   Mean   :0.0969   Mean   :0  
+##  3rd Qu.:1.0000   3rd Qu.:0.0000   3rd Qu.:0  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :0
+movies[movies==" ?"]=NA
+sum(is.na(movies))
+## [1] 0
+attach(movies)
+names(movies)
+##  [1] "X"               "ID"              "Title"           "Year"           
+##  [5] "Age"             "Rotten.Tomatoes" "Netflix"         "Hulu"           
+##  [9] "Prime.Video"     "Disney."         "Type"
+movies$Netflix <- as.factor(movies$Netflix)
+movies$Hulu <- as.factor(movies$Hulu)
+movies$Prime.Video<-as.factor(movies$Prime.Video)
+movies$Disney.<-as.factor(movies$Disney.)
+
+
+
+#with ggplot
+ggplot(movies, aes(x=Age, group=Netflix, fill=Netflix)) +
+  geom_bar(position="fill") +
+  scale_fill_manual(values=c("orange", "darkgreen"), name="age by choice")
+ 
+ggplot(movies, aes(x=Age, group=Hulu, fill=Hulu)) +
+  geom_bar(position="fill") +
+  scale_fill_manual(values=c("blue", "pink"), name="age by choice")
+ 
+ggplot(movies, aes(x=Age, group=Prime.Video, fill=Prime.Video)) +
+  geom_bar(position="fill") +
+  scale_fill_manual(values=c("blue", "white"), name="age by choice")
+ 
+ggplot(movies, aes(x=Age, group=Disney., fill=Disney.)) +
+  geom_bar(position="fill") +
+  scale_fill_manual(values=c("white", "red"), name="age by choice")
+ 
+# تبدیل داده‌ها به فرمت طولانی
+movies_long <- movies %>%
+  pivot_longer(cols = c(Netflix, Hulu, `Prime.Video`, `Disney.`),
+               names_to = "Platform", values_to = "Availability")
+#kol
+# رسم نمودار
+ggplot(movies_long, aes(x = Age, group = Availability, fill = Availability)) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(values = c("orange", "darkgreen"), name = "Availability") +
+  facet_wrap(~ Platform) +
+  labs(title = "Distribution of Movies Over Years by Platform Availability",
+       x = "Year", y = "Proportion") +
+  theme_minimal()
+ 
+movies$Age <- as.numeric(gsub("\\+", "", movies$Age))
+## Warning: NAs introduced by coercion
+# داده‌های Disney+
+disney_age <- movies %>%
+  filter(`Disney.` == 1) %>%
+  pull(Age)
+# داده‌های Netflix
+netflix_age <- movies %>%
+  filter(Netflix == 1) %>%
+  pull(Age)
+# تست نرمال بودن (Shapiro-Wilk test)
+shapiro.test(disney_age)
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  disney_age
+## W = 0.53385, p-value < 2.2e-16
+shapiro.test(netflix_age)
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  netflix_age
+## W = 0.73969, p-value < 2.2e-16
+####MAN VITNI
+# آزمون Mann-Whitney U (یا Wilcoxon rank-sum test)
+wilcox.test(disney_age, netflix_age, alternative = "less")
+## 
+##  Wilcoxon rank sum test with continuity correction
+## 
+## data:  disney_age and netflix_age
+## W = 88591, p-value < 2.2e-16
+## alternative hypothesis: true location shift is less than 0
+# تبدیل "85%" به عدد 85
+movies$`Rotten.Tomatoes` <- as.numeric(gsub("%", "", movies$`Rotten.Tomatoes`))
+## Warning: NAs introduced by coercion
+movies %>% filter(!is.na(`Rotten.Tomatoes`)) %>% nrow()
+## [1] 0
+table(movies$Netflix)
+## 
+##    0    1 
+## 5820 3695
+table(movies$`Disney+`)
+## < table of extent 0 >
+netflix_scores <- movies %>%
+  filter(Netflix == 1) %>%
+  pull(`Rotten.Tomatoes`)
+
+disney_scores <- movies %>%
+  filter(`Disney.` == 1) %>%
+  pull(`Rotten.Tomatoes`)
+
+class(netflix_scores)
+## [1] "numeric"
+class(disney_scores)
+## [1] "numeric"
+sum(is.na(movies$`Rotten.Tomatoes`))  # تعداد مقادیر گمشده
+## [1] 9515
+movies_clean <- movies %>% filter(!is.na(`Rotten.Tomatoes`))
+
+# تعداد داده‌های موجود در Netflix و Disney+
+movies_clean %>% filter(Netflix == 1) %>% nrow()
+## [1] 0
+movies_clean %>% filter(`Disney.` == 1) %>% nrow()
+## [1] 0
+# بررسی تعداد داده‌ها برای Netflix و Disney+
+table(movies_clean$Netflix)  # تعداد فیلم‌ها در Netflix
+## 
+## 0 1 
+## 0 0
+table(movies_clean$`Disney.`)  # تعداد فیلم‌ها در Disney+
+## 
+## 0 1 
+## 0 0
+# تبدیل Rotten Tomatoes به عددی (در صورت نیاز)
+movies$`Rotten.Tomatoes` <- as.numeric(movies$`Rotten.Tomatoes`)
+
+wilcox.test(Netflix, Disney., alternative = "two.sided")
+## 
+##  Wilcoxon rank sum test with continuity correction
+## 
+## data:  Netflix and Disney.
+## W = 58460160, p-value < 2.2e-16
+## alternative hypothesis: true location shift is not equal to 0
